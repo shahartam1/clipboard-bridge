@@ -144,3 +144,27 @@
   color: var(--text-muted);
   padding: 10px 0 14px;
 }
+
+/* Sent confirmation */
+.picker-modal--sent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px;
+  gap: 10px;
+}
+
+.sent-icon {
+  font-size: 40px;
+  color: var(--green);
+}
+
+.sent-label {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.sent-label strong {
+  color: var(--accent);
+}
