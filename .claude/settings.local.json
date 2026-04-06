@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)",
+      "Bash(brew list:*)",
+      "Bash(export PATH=\"$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(brew --version)",
+      "Bash(export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH brew list)",
+      "Bash(rustup default:*)",
+      "Bash(export PATH=\"$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\" cd \"/Users/shahar/ClipBoard project/server\")",
+      "Bash(npm install:*)",
+      "Bash(export PATH=\"$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\" cd \"/Users/shahar/ClipBoard project/desktop\")",
+      "Bash(cargo tauri:*)",
+      "Bash(export PATH=\"$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\" cargo install tauri-cli --version \"^2\")",
+      "Bash(grep error[ /private/tmp/claude-502/-Users-shahar-ClipBoard-project/04682d23-2f59-468d-bced-a7bd2ab4748c/tasks/bw68rfmxi.output)",
+      "Bash(cargo build:*)",
+      "Bash(export PATH=\"$HOME/.cargo/bin:/opt/homebrew/bin:/usr/local/bin:$PATH\" cd \"/Users/shahar/ClipBoard project/desktop/src-tauri\")",
+      "Bash(pkill -f \"clipboard-bridge\")",
+      "Bash(pkill -f \"tauri dev\")",
+      "Bash(pkill -f \"vite\")",
+      "Bash(ipconfig getifaddr:*)",
+      "Bash(pkill -f \"cargo tauri\")",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\" cd \"/Users/shahar/ClipBoard project/desktop\")",
+      "Bash(export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH git --version)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\" brew install gh)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\" gh --version)",
+      "Bash(export PATH=\"/opt/homebrew/bin:/usr/local/bin:$PATH\")",
+      "Bash(gh auth:*)",
+      "Bash(export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH ls ~/.config/gh/)",
+      "Bash(sudo mkdir:*)",
+      "Bash(sudo chown:*)"
+    ]
+  }
+}

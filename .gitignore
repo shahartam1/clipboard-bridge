@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+desktop/node_modules/
+server/node_modules/
+
+# Build output
+desktop/dist/
+desktop/src-tauri/target/
+
+# Env files (keep .env.example, ignore real .env)
+.env
+desktop/.env
+
+# Tauri generated files
+desktop/src-tauri/gen/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+/tmp/
+
+# Android build
+android/.gradle/
+android/app/build/
+android/local.properties

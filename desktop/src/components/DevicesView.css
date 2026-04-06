@@ -1,0 +1,17 @@
+.device-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.device-icon { font-size: 24px; }
+
+.device-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.device-name { font-weight: 600; font-size: 14px; }
+.device-subtext { font-size: 11px; color: var(--text-muted); font-family: monospace; }

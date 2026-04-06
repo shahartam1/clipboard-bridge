@@ -1,0 +1,146 @@
+.picker-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.12s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.picker-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 360px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.15s ease;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Header */
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 0;
+}
+
+.picker-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.picker-close {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+.picker-close:hover { background: var(--surface2); color: var(--text); }
+
+/* Preview */
+.picker-preview {
+  margin: 12px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+
+.picker-preview-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.picker-preview-text {
+  font-size: 13px;
+  color: var(--text);
+  word-break: break-all;
+  line-height: 1.45;
+  max-height: 60px;
+  overflow: hidden;
+}
+
+/* Device list */
+.picker-devices-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding: 0 16px 6px;
+}
+
+.picker-devices {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+}
+
+.picker-device-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.1s;
+}
+
+.picker-device-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.picker-device-btn:hover .picker-device-arrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+
+.picker-device-icon { font-size: 16px; }
+.picker-device-name { flex: 1; }
+.picker-device-arrow {
+  opacity: 0;
+  transition: opacity 0.1s, transform 0.1s;
+  font-size: 16px;
+}
+
+.picker-empty {
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.picker-empty strong { color: var(--accent); }
+
+/* Hint */
+.picker-hint {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 10px 0 14px;
+}

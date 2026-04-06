@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:gap="12dp">
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Pair a Device" android:textSize="18sp" android:textStyle="bold" />
+
+        <!-- Host: generate token -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="12dp" android:gap="8dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Generate a pairing code" android:textStyle="bold" />
+                <Button android:id="@+id/btnGenerateToken"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Generate Code" />
+                <TextView android:id="@+id/tokenDisplay"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:textSize="24sp" android:textStyle="bold" android:text="—"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Guest: enter token -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent" android:layout_height="wrap_content">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:orientation="vertical" android:padding="12dp" android:gap="8dp">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Or enter a code from another device" android:textStyle="bold" />
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:hint="acid-ball-camp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/joinInput"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:inputType="text" android:fontFamily="monospace" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <Button android:id="@+id/btnJoin"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Pair" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView android:id="@+id/pairingStatus"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="" android:textSize="14sp" />
+    </LinearLayout>
+</ScrollView>
