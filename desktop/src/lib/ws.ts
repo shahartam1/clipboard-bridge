@@ -46,27 +46,44 @@ function _connect() {
 
   ws.onopen = () => {
     reconnectDelay = 1000;
-    if (registrationPayload) ws!.send(JSON.stringify(registrationPayload));
+    console.log('[ws] connected to', SERVER_URL);
+    if (registrationPayload) {
+      console.log('[ws] → sending REGISTER', registrationPayload);
+      ws!.send(JSON.stringify(registrationPayload));
+    }
   };
 
   ws.onmessage = (event) => {
     try {
-      dispatch(JSON.parse(event.data as string));
+      const msg = JSON.parse(event.data as string);
+      console.log('[ws] ← received', msg.type, msg);
+      dispatch(msg);
     } catch { /* ignore malformed */ }
   };
 
-  ws.onclose = () => {
+  ws.onclose = (e) => {
+    console.warn('[ws] disconnected — code:', e.code, 'reason:', e.reason, '— reconnecting in', reconnectDelay, 'ms');
     dispatch({ type: "DISCONNECTED" });
     setTimeout(_connect, reconnectDelay);
     reconnectDelay = Math.min(reconnectDelay * 2, 30_000);
   };
 
-  ws.onerror = () => ws?.close();
+  ws.onerror = (e) => {
+    console.error('[ws] socket error', e);
+    ws?.close();
+  };
 }
 
 export function sendMsg(payload: Record<string, unknown>) {
-  if (ws?.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify(payload));
+  const state = ws?.readyState;
+  console.log('[ws] sendMsg', payload.type, '| readyState:', state,
+    '| OPEN=', WebSocket.OPEN, '| isOpen:', state === WebSocket.OPEN);
+  if (state === WebSocket.OPEN) {
+    ws!.send(JSON.stringify(payload));
+    console.log('[ws] sendMsg sent ✓', payload.type);
+  } else {
+    console.error('[ws] sendMsg DROPPED — ws not open. state:', state,
+      '(0=CONNECTING, 1=OPEN, 2=CLOSING, 3=CLOSED)');
   }
 }
 

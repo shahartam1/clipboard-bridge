@@ -169,12 +169,18 @@ export const useAppStore = create<AppState>((set, get) => ({
   sendClip(peerId, content, dataType = "text") {
     const { identity, peers } = get();
     const peer = peers.find(p => p.id === peerId);
-    if (!peer) return;
+    console.log('[sendClip] to:', peerId, '| peer found:', !!peer, '| myId:', identity.deviceId);
+    if (!peer) {
+      console.error('[sendClip] ABORTED — peer not found in list. peers:', peers.map(p => p.id));
+      return;
+    }
 
     const msgId = crypto.randomUUID();
     const inner = JSON.stringify({ dataType, content });
     const payload = encrypt(inner, identity.keyPair.secretKey, peer.publicKey);
 
+    console.log('[sendClip] encrypting for peer pubkey:', peer.publicKey.slice(0, 16), '...');
+    console.log('[sendClip] calling sendMsg RELAY msgId:', msgId);
     set(s => ({ sendStatus: { ...s.sendStatus, [msgId]: "sending" } }));
     sendMsg({ type: "RELAY", to: peerId, msgId, payload });
   },

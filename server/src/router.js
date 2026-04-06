@@ -18,6 +18,9 @@ function sendToDevice(deviceId, obj) {
 export function handleMessage(ws, msg) {
   const { type } = msg;
 
+  // Log every incoming message so we can see what the server actually receives
+  log('info', 'msg_received', { type, from: ws.id ?? '(unregistered)', to: msg.to ?? null });
+
   switch (type) {
 
     // ── Registration ─────────────────────────────────────────────────────────
@@ -76,7 +79,12 @@ export function handleMessage(ws, msg) {
       if (!ws.id) return send(ws, { type: 'ERROR', error: 'not_registered' });
       const { to, msgId, payload } = msg;
 
-      if (!registry.arePaired(ws.id, to)) {
+      const paired = registry.arePaired(ws.id, to);
+      const targetOnline = registry.isOnline(to);
+      log('info', 'relay_attempt', { from: ws.id, to, paired, targetOnline, msgId });
+
+      if (!paired) {
+        log('warn', 'relay_rejected_not_paired', { from: ws.id, to });
         return send(ws, { type: 'ERROR', error: 'not_paired' });
       }
 
