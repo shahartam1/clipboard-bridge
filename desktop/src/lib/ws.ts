@@ -1,6 +1,8 @@
 /**
  * WebSocket client — connects to the signaling/relay server.
  * Auto-reconnects with exponential backoff.
+ * Singleton: only one handler can be registered (the store).
+ * This prevents duplicate handlers on Vite HMR reloads.
  */
 
 type MessageHandler = (msg: Record<string, unknown>) => void;
@@ -9,19 +11,26 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8787";
 
 let ws: WebSocket | null = null;
 let reconnectDelay = 1000;
-let handlers: MessageHandler[] = [];
+let handler: MessageHandler | null = null;  // single handler, not an array
 let registrationPayload: Record<string, string> | null = null;
+let initialized = false;
 
-export function onMessage(handler: MessageHandler) {
-  handlers.push(handler);
-  return () => { handlers = handlers.filter(h => h !== handler); };
+export function onMessage(h: MessageHandler) {
+  handler = h; // always replaces — no duplicates on HMR
 }
 
 function dispatch(msg: Record<string, unknown>) {
-  handlers.forEach(h => h(msg));
+  handler?.(msg);
 }
 
 export function connect(deviceId: string, deviceName: string, publicKey: string) {
+  // Guard: only connect once per app session (HMR-safe)
+  if (initialized) {
+    // Just update the registration payload so reconnects use fresh identity
+    registrationPayload = { type: "REGISTER", deviceId, deviceName, publicKey };
+    return;
+  }
+  initialized = true;
   registrationPayload = { type: "REGISTER", deviceId, deviceName, publicKey };
   _connect();
 }
