@@ -22,13 +22,17 @@ export function handleMessage(ws, msg) {
 
     // ── Registration ─────────────────────────────────────────────────────────
     case 'REGISTER': {
-      const { deviceId, deviceName, publicKey } = msg;
+      const { deviceId, deviceName, publicKey, peerIds } = msg;
       if (!deviceId || !publicKey) {
         return send(ws, { type: 'ERROR', error: 'missing_fields' });
       }
       registry.register(deviceId, ws, { deviceName: deviceName || 'Unknown Device', publicKey });
+      // Restore previously-known pairings (sent by client from localStorage)
+      if (Array.isArray(peerIds) && peerIds.length > 0) {
+        registry.restorePairings(deviceId, peerIds);
+      }
       send(ws, { type: 'REGISTERED', deviceId });
-      log('info', 'registered', { deviceId, deviceName });
+      log('info', 'registered', { deviceId, deviceName, peers: peerIds?.length ?? 0 });
       break;
     }
 

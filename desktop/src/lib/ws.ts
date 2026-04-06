@@ -12,7 +12,7 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8787";
 let ws: WebSocket | null = null;
 let reconnectDelay = 1000;
 let handler: MessageHandler | null = null;  // single handler, not an array
-let registrationPayload: Record<string, string> | null = null;
+let registrationPayload: Record<string, unknown> | null = null;
 let initialized = false;
 
 export function onMessage(h: MessageHandler) {
@@ -23,15 +23,19 @@ function dispatch(msg: Record<string, unknown>) {
   handler?.(msg);
 }
 
-export function connect(deviceId: string, deviceName: string, publicKey: string) {
+export function connect(
+  deviceId: string,
+  deviceName: string,
+  publicKey: string,
+  peerIds: string[] = [],
+) {
   // Guard: only connect once per app session (HMR-safe)
   if (initialized) {
-    // Just update the registration payload so reconnects use fresh identity
-    registrationPayload = { type: "REGISTER", deviceId, deviceName, publicKey };
+    registrationPayload = { type: "REGISTER", deviceId, deviceName, publicKey, peerIds };
     return;
   }
   initialized = true;
-  registrationPayload = { type: "REGISTER", deviceId, deviceName, publicKey };
+  registrationPayload = { type: "REGISTER", deviceId, deviceName, publicKey, peerIds };
   _connect();
 }
 

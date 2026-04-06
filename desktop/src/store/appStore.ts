@@ -58,8 +58,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   pickerText: null,
 
   init() {
-    const { identity } = get();
-    connect(identity.deviceId, identity.deviceName, identity.keyPair.publicKey);
+    const { identity, peers } = get();
+    // Pass peer IDs so server can restore pairings after restart
+    const peerIds = peers.map(p => p.id);
+    connect(identity.deviceId, identity.deviceName, identity.keyPair.publicKey, peerIds);
 
     onMessage((msg) => {
       const type = msg.type as string;
@@ -138,6 +140,11 @@ export const useAppStore = create<AppState>((set, get) => ({
             [msgId]: status === "delivered" ? "delivered" : "offline",
           },
         }));
+      }
+
+      if (type === "ERROR") {
+        // Log server errors so they're visible in devtools console
+        console.error("[ClipBridge server error]", msg.error);
       }
     });
   },
