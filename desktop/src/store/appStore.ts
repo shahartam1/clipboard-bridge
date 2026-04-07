@@ -79,6 +79,23 @@ export const useAppStore = create<AppState>((set, get) => ({
         console.log('[testSend] Called sendClip ✓');
       };
       console.log('%c[ClipBridge Dev] Call window.testSend() to test relay delivery', 'color: cyan; font-weight: bold');
+
+      // Auto-test: fire once, 4 seconds after startup, if there are peers
+      const autoTestKey = '__cbAutoTested_v4';
+      if (!(window as any)[autoTestKey]) {
+        (window as any)[autoTestKey] = true;
+        setTimeout(() => {
+          const { peers: ps } = get();
+          if (ps.length === 0) {
+            remoteLog({ event: 'auto_test_skip', reason: 'no_peers' });
+            return;
+          }
+          const msg = '🧪 Auto-test ' + new Date().toLocaleTimeString();
+          remoteLog({ event: 'auto_test_start', to: ps[0].id, msg });
+          console.log('[auto-test] Firing test send to', ps[0].id);
+          get().sendClip(ps[0].id, msg, 'text');
+        }, 4000);
+      }
     }
 
     onMessage((msg) => {
@@ -199,13 +216,27 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const msgId = crypto.randomUUID();
     const inner = JSON.stringify({ dataType, content });
-    const payload = encrypt(inner, identity.keyPair.secretKey, peer.publicKey);
 
-    console.log('[sendClip] encrypting for peer pubkey:', peer.publicKey.slice(0, 16), '...');
+    let payload;
+    try {
+      payload = encrypt(inner, identity.keyPair.secretKey, peer.publicKey);
+      remoteLog({ ...logBase, result: 'encrypt_ok', msgId, peerPubKey: peer.publicKey.slice(0, 12) });
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      console.error('[sendClip] encrypt() THREW:', errMsg);
+      remoteLog({ ...logBase, result: 'encrypt_THREW', error: errMsg, msgId });
+      return;
+    }
+
     console.log('[sendClip] calling sendMsg RELAY msgId:', msgId);
     remoteLog({ ...logBase, result: 'calling_sendMsg', msgId });
     set(s => ({ sendStatus: { ...s.sendStatus, [msgId]: "sending" } }));
-    sendMsg({ type: "RELAY", to: peerId, msgId, payload });
+    try {
+      sendMsg({ type: "RELAY", to: peerId, msgId, payload });
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      remoteLog({ ...logBase, result: 'sendMsg_THREW', error: errMsg, msgId });
+    }
   },
 
   copyToClipboard(content) {

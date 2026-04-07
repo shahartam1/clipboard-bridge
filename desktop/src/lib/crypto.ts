@@ -1,14 +1,21 @@
 /**
  * Crypto layer — X25519 key exchange + XSalsa20-Poly1305 (via TweetNaCl)
  * Everything here runs client-side only. Server never sees plaintext.
+ *
+ * NOTE: We use the native TextEncoder/TextDecoder instead of tweetnacl-util's
+ * encodeUTF8/decodeUTF8 because the latter returns a plain String in some Vite/ESM
+ * environments, which causes nacl.box.after to throw "unexpected type, use Uint8Array".
  */
 import nacl from "tweetnacl";
-import { encodeBase64, decodeBase64, encodeUTF8, decodeUTF8 } from "tweetnacl-util";
+import { encodeBase64, decodeBase64 } from "tweetnacl-util";
 
 export interface KeyPair {
   publicKey: string;  // base64
   secretKey: string;  // base64
 }
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
 
 export function generateKeyPair(): KeyPair {
   const kp = nacl.box.keyPair();
@@ -47,7 +54,7 @@ export function encrypt(
 ): EncryptedPayload {
   const key = sharedKey(mySecretKey, peerPublicKey);
   const nonce = nacl.randomBytes(nacl.box.nonceLength);
-  const msg = encodeUTF8(plaintext);
+  const msg = encoder.encode(plaintext);        // TextEncoder → always Uint8Array ✓
   const encrypted = nacl.box.after(msg, nonce, key);
   return {
     nonce: encodeBase64(nonce),
@@ -68,7 +75,7 @@ export function decrypt(
       key
     );
     if (!decrypted) return null;
-    return decodeUTF8(decrypted);
+    return decoder.decode(decrypted);           // TextDecoder → always works ✓
   } catch {
     return null;
   }
