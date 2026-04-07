@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import SendView from "./components/SendView";
 import DevicesView from "./components/DevicesView";
 import PairView from "./components/PairView";
+import HistoryView from "./components/HistoryView";
 import SettingsView from "./components/SettingsView";
 import IncomingToast from "./components/IncomingToast";
 import QuickSendPicker from "./components/QuickSendPicker";
@@ -22,6 +23,7 @@ export default function App() {
         {activeTab === "send"     && <SendView />}
         {activeTab === "devices"  && <DevicesView />}
         {activeTab === "pair"     && <PairView />}
+        {activeTab === "history"  && <HistoryView />}
         {activeTab === "settings" && <SettingsView />}
       </main>
       <IncomingToast />

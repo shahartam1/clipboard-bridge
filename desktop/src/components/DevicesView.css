@@ -15,3 +15,38 @@
 
 .device-name { font-weight: 600; font-size: 14px; }
 .device-subtext { font-size: 11px; color: var(--text-muted); font-family: monospace; }
+
+.device-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 14px;
+  opacity: 0.6;
+  border-radius: 4px;
+  transition: opacity 0.15s;
+}
+.btn-icon:hover { opacity: 1; background: rgba(255,255,255,0.08); }
+
+.device-rename {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rename-input {
+  font-size: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: inherit;
+  width: 180px;
+}
+.rename-input:focus { outline: none; border-color: #7c6af7; }
+.rename-actions { display: flex; gap: 6px; }

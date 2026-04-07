@@ -5,6 +5,7 @@ const NAV: { id: Tab; label: string; icon: string }[] = [
   { id: "send",     label: "Send",    icon: "⬆" },
   { id: "devices",  label: "Devices", icon: "📱" },
   { id: "pair",     label: "Pair",    icon: "🔗" },
+  { id: "history",  label: "History", icon: "🕒" },
   { id: "settings", label: "Settings",icon: "⚙" },
 ];
 

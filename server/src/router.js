@@ -59,17 +59,22 @@ export function handleMessage(ws, msg) {
         return send(ws, { type: 'PAIR_ERROR', error: result.error });
       }
 
-      // Notify both sides with each other's public key
+      // Notify both sides with each other's public key and display name
+      const hostDevice  = registry.get(result.hostId);
+      const guestDevice = registry.get(result.guestId); // ws.id is guestId here
+
       send(ws, {
         type: 'PAIR_SUCCESS',
         peerId: result.hostId,
         peerPublicKey: result.hostPublicKey,
+        peerName: hostDevice?.deviceName ?? `Device-${result.hostId.slice(0, 6)}`,
       });
 
       sendToDevice(result.hostId, {
         type: 'PAIR_SUCCESS',
         peerId: result.guestId,
         peerPublicKey: result.guestPublicKey,
+        peerName: guestDevice?.deviceName ?? `Device-${result.guestId.slice(0, 6)}`,
       });
       break;
     }

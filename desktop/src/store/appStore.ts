@@ -9,7 +9,7 @@ function remoteLog(data: Record<string, unknown>) {
   fetch(`${SERVER_HTTP}/debug-log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
 }
 
-export type Tab = "send" | "devices" | "pair" | "settings";
+export type Tab = "send" | "devices" | "pair" | "history" | "settings";
 
 export interface ClipItem {
   id: string;
@@ -47,6 +47,7 @@ interface AppState {
   copyToClipboard: (content: string) => void;
   dismissClip: (id: string) => void;
   closePicker: () => void;
+  renamePeer: (peerId: string, newName: string) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -113,7 +114,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         const peerPublicKey = msg.peerPublicKey as string;
         const newPeer: PeerInfo = {
           id: peerId,
-          name: `Device-${peerId.slice(0, 6)}`,
+          name: (msg.peerName as string | undefined) ?? `Device-${peerId.slice(0, 6)}`,
           publicKey: peerPublicKey,
           addedAt: Date.now(),
         };
@@ -251,5 +252,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   closePicker() {
     set({ pickerOpen: false, pickerText: null });
+  },
+
+  renamePeer(peerId, newName) {
+    const peers = get().peers;
+    const peer = peers.find(p => p.id === peerId);
+    if (!peer) return;
+    storage.addPeer({ ...peer, name: newName.trim() || peer.name });
+    set({ peers: storage.getPeers() });
   },
 }));

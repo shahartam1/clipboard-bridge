@@ -6,10 +6,6 @@ export default function SendView() {
   const peers      = useAppStore(s => s.peers);
   const sendClip   = useAppStore(s => s.sendClip);
   const sendStatus = useAppStore(s => s.sendStatus);
-  const clipHistory = useAppStore(s => s.clipHistory);
-  const copyToClipboard = useAppStore(s => s.copyToClipboard);
-  const dismissClip = useAppStore(s => s.dismissClip);
-
   const [text, setText] = useState("");
   const [selectedPeer, setSelectedPeer] = useState<string>("");
   const [lastMsgId, setLastMsgId] = useState<string | null>(null);
@@ -94,33 +90,6 @@ export default function SendView() {
         </div>
       )}
 
-      {clipHistory.length > 0 && (
-        <>
-          <h3 className="section-title">Received</h3>
-          {clipHistory.map(item => (
-            <div key={item.id} className="card clip-card">
-              <div className="clip-meta">
-                <span className="clip-from">{item.fromName}</span>
-                <span className="clip-time">{new Date(item.receivedAt).toLocaleTimeString()}</span>
-              </div>
-              <p className="clip-content">{item.content}</p>
-              <div className="clip-actions">
-                <button className="btn-ghost" onClick={() => copyToClipboard(item.content)}>
-                  Copy
-                </button>
-                {item.dataType === "url" && (
-                  <button className="btn-ghost" onClick={() => window.open(item.content, "_blank")}>
-                    Open URL
-                  </button>
-                )}
-                <button className="btn-ghost" onClick={() => dismissClip(item.id)}>
-                  Dismiss
-                </button>
-              </div>
-            </div>
-          ))}
-        </>
-      )}
     </div>
   );
 }
