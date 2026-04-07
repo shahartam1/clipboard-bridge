@@ -1,3 +1,4 @@
+import { open } from "@tauri-apps/plugin-shell";
 import { useAppStore } from "../store/appStore";
 import "./HistoryView.css";
 
@@ -26,7 +27,7 @@ export default function HistoryView() {
             <div className="clip-actions">
               <button className="btn-ghost" onClick={() => copyToClipboard(item.content)}>Copy</button>
               {item.dataType === "url" && (
-                <button className="btn-ghost" onClick={() => window.open(item.content, "_blank")}>Open URL</button>
+                <button className="btn-ghost" onClick={() => open(item.content).catch(() => window.open(item.content, "_blank"))}>Open URL</button>
               )}
               <button className="btn-ghost" onClick={() => dismissClip(item.id)}>Dismiss</button>
             </div>
