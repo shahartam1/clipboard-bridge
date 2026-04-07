@@ -16,10 +16,17 @@ export default function SendView() {
 
   function handleSend() {
     if (!text.trim() || !selectedPeer) return;
-    const msgId = crypto.randomUUID();
     sendClip(selectedPeer, text.trim(), text.startsWith("http") ? "url" : "text");
-    setLastMsgId(msgId);
     setText("");
+  }
+
+  // Dev-only: quick test button — auto-fills and sends to first peer
+  function handleTestSend() {
+    const firstPeer = peers[0];
+    if (!firstPeer) return;
+    const testMsg = "🧪 Test from ClipBridge @ " + new Date().toLocaleTimeString();
+    console.log("[TEST] Sending to", firstPeer.id, firstPeer.name);
+    sendClip(firstPeer.id, testMsg, "text");
   }
 
   const status = lastMsgId ? sendStatus[lastMsgId] : null;
@@ -70,6 +77,16 @@ export default function SendView() {
             >
               Send  ⌘↵
             </button>
+            {import.meta.env.DEV && peers.length > 0 && (
+              <button
+                className="btn-ghost"
+                style={{ marginLeft: 8, fontSize: 12 }}
+                onClick={handleTestSend}
+                title="Dev only: auto-send test message to first peer"
+              >
+                🧪 Test Send
+              </button>
+            )}
             {status === "sending"   && <span className="status-hint">Sending…</span>}
             {status === "delivered" && <span className="status-hint green">✓ Delivered</span>}
             {status === "offline"   && <span className="status-hint red">Device offline</span>}

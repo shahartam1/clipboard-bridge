@@ -68,6 +68,19 @@ export const useAppStore = create<AppState>((set, get) => ({
     const peerIds = peers.map(p => p.id);
     connect(identity.deviceId, identity.deviceName, identity.keyPair.publicKey, peerIds);
 
+    // Dev helper: window.testSend() — call from WebKit inspector console to test relay
+    if (import.meta.env.DEV) {
+      (window as any).testSend = () => {
+        const { peers: ps } = get();
+        if (ps.length === 0) { console.error('[testSend] No peers!'); return; }
+        const msg = '🧪 Test ' + new Date().toLocaleTimeString();
+        console.log('[testSend] Sending to', ps[0].id, msg);
+        get().sendClip(ps[0].id, msg, 'text');
+        console.log('[testSend] Called sendClip ✓');
+      };
+      console.log('%c[ClipBridge Dev] Call window.testSend() to test relay delivery', 'color: cyan; font-weight: bold');
+    }
+
     onMessage((msg) => {
       const type = msg.type as string;
 
