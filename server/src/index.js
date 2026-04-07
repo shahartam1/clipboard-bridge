@@ -7,9 +7,33 @@ import { log } from './logger.js';
 const PORT = parseInt(process.env.PORT || '8787');
 
 const httpServer = createServer((req, res) => {
+  // CORS for debug endpoint
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.writeHead(204).end();
+  }
+
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', devices: registry.count() }));
+
+  } else if (req.url === '/debug-log' && req.method === 'POST') {
+    // Client posts log messages here so we can see them in server stdout
+    let body = '';
+    req.on('data', d => body += d);
+    req.on('end', () => {
+      try {
+        const entry = JSON.parse(body);
+        log('info', 'client_log', entry);
+      } catch {
+        log('info', 'client_log', { raw: body.slice(0, 200) });
+      }
+      res.writeHead(204).end();
+    });
+
   } else {
     res.writeHead(404).end();
   }

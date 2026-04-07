@@ -4,6 +4,11 @@ import { storage, type PeerInfo, type Identity } from "../lib/storage";
 import { encrypt, decrypt, type EncryptedPayload } from "../lib/crypto";
 import { connect, onMessage, sendMsg } from "../lib/ws";
 
+const SERVER_HTTP = (import.meta.env.VITE_SERVER_URL ?? "ws://localhost:8787").replace(/^ws/, 'http');
+function remoteLog(data: Record<string, unknown>) {
+  fetch(`${SERVER_HTTP}/debug-log`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }).catch(() => {});
+}
+
 export type Tab = "send" | "devices" | "pair" | "settings";
 
 export interface ClipItem {
@@ -169,9 +174,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   sendClip(peerId, content, dataType = "text") {
     const { identity, peers } = get();
     const peer = peers.find(p => p.id === peerId);
+    const logBase = { fn: 'sendClip', to: peerId, peerFound: !!peer, myId: identity.deviceId, peerList: peers.map(p => p.id) };
     console.log('[sendClip] to:', peerId, '| peer found:', !!peer, '| myId:', identity.deviceId);
+    remoteLog(logBase);
+
     if (!peer) {
       console.error('[sendClip] ABORTED — peer not found in list. peers:', peers.map(p => p.id));
+      remoteLog({ ...logBase, result: 'ABORTED_PEER_NOT_FOUND' });
       return;
     }
 
@@ -181,6 +190,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     console.log('[sendClip] encrypting for peer pubkey:', peer.publicKey.slice(0, 16), '...');
     console.log('[sendClip] calling sendMsg RELAY msgId:', msgId);
+    remoteLog({ ...logBase, result: 'calling_sendMsg', msgId });
     set(s => ({ sendStatus: { ...s.sendStatus, [msgId]: "sending" } }));
     sendMsg({ type: "RELAY", to: peerId, msgId, payload });
   },
