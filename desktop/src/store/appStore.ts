@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { sendNotification, isPermissionGranted, requestPermission } from "@tauri-apps/plugin-notification";
 import { storage, type PeerInfo, type Identity } from "../lib/storage";
 import { encrypt, decrypt, type EncryptedPayload } from "../lib/crypto";
 import { connect, onMessage, sendMsg } from "../lib/ws";
@@ -160,9 +161,28 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         // ── Auto-copy to system clipboard on receive ──────────────
         writeText(inner.content).catch(() => {
-          // Fallback to browser API if Tauri plugin unavailable
           navigator.clipboard.writeText(inner.content).catch(() => {});
         });
+
+        // ── OS notification ──────────────────────────────────────
+        (async () => {
+          try {
+            let granted = await isPermissionGranted();
+            if (!granted) {
+              const perm = await requestPermission();
+              granted = perm === "granted";
+            }
+            if (granted) {
+              const isUrl = inner.dataType === "url";
+              sendNotification({
+                title: `📋 ClipBridge — from ${item.fromName}`,
+                body: isUrl
+                  ? `🔗 ${inner.content.slice(0, 80)}`
+                  : inner.content.slice(0, 100),
+              });
+            }
+          } catch { /* notifications not available in dev browser */ }
+        })();
 
         set(s => ({ clipHistory: [item, ...s.clipHistory].slice(0, 50) }));
       }

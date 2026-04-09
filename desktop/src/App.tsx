@@ -6,7 +6,6 @@ import DevicesView from "./components/DevicesView";
 import PairView from "./components/PairView";
 import HistoryView from "./components/HistoryView";
 import SettingsView from "./components/SettingsView";
-import IncomingToast from "./components/IncomingToast";
 import QuickSendPicker from "./components/QuickSendPicker";
 import "./App.css";
 
@@ -26,7 +25,6 @@ export default function App() {
         {activeTab === "history"  && <HistoryView />}
         {activeTab === "settings" && <SettingsView />}
       </main>
-      <IncomingToast />
       <QuickSendPicker />
     </div>
   );
