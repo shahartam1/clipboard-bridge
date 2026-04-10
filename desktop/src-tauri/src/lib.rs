@@ -22,9 +22,6 @@ fn show_clip_notification(
         .get_webview_window("clipnotif")
         .ok_or_else(|| "clipnotif window not found".to_string())?;
 
-    let notif_w = 360.0_f64;
-    let notif_h = 250.0_f64; // generous initial height; JS will shrink to card's actual height
-
     // Use the monitor the main window is on; fall back to primary monitor
     let screen_w = app
         .get_webview_window("main")
@@ -33,9 +30,10 @@ fn show_clip_notification(
         .map(|m| m.size().width as f64 / m.scale_factor())
         .unwrap_or(1920.0);
 
-    // Top-right corner (Tauri uses top-left origin on all platforms)
-    let x = screen_w - notif_w - 16.0;
-    let y = 25.0; // below macOS menu bar / safe margin from top on Windows
+    // Top-right corner — window is 360×250 (from config); card auto-sizes
+    // inside it and transparent background hides the unused space below.
+    let x = screen_w - 360.0 - 16.0;
+    let y = 25.0;
 
     // ── Inject data synchronously via eval so it is available even if the
     //    Tauri event listener in React hasn't registered yet ─────────────────
@@ -54,11 +52,9 @@ fn show_clip_notification(
     // Also emit a Tauri event as a belt-and-suspenders fallback
     win.emit("clip-notification", payload).map_err(|e| e.to_string())?;
 
-    // Show first, then apply size + position — on Windows, set_size/set_position
-    // on a hidden window may be ignored; applying after show() is reliable.
+    // Show, then reposition — never resize; the 360×250 config size is fixed
+    // and the card auto-sizes within the transparent window.
     win.show().map_err(|e| e.to_string())?;
-    win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(notif_w, notif_h)))
-        .map_err(|e| e.to_string())?;
     win.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)))
         .map_err(|e| e.to_string())?;
 

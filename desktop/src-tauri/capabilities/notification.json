@@ -6,7 +6,6 @@
     "core:default",
     "core:window:allow-close",
     "core:window:allow-hide",
-    "core:window:allow-set-size",
     "shell:allow-open"
   ]
 }
