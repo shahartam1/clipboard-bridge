@@ -18,6 +18,21 @@
         "fullscreen": false,
         "decorations": true,
         "visible": true
+      },
+      {
+        "label": "clipnotif",
+        "title": "",
+        "url": "about:blank",
+        "width": 360,
+        "height": 130,
+        "resizable": false,
+        "fullscreen": false,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "focus": false
       }
     ],
     "security": {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { invoke } from "@tauri-apps/api/core";
 import { storage, type PeerInfo, type Identity } from "../lib/storage";
 import { encrypt, decrypt, type EncryptedPayload } from "../lib/crypto";
 import { connect, onMessage, sendMsg } from "../lib/ws";
@@ -70,36 +70,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     const peerIds = peers.map(p => p.id);
     connect(identity.deviceId, identity.deviceName, identity.keyPair.publicKey, peerIds);
 
-    // Dev helper: window.testSend() — call from WebKit inspector console to test relay
-    if (import.meta.env.DEV) {
-      (window as any).testSend = () => {
-        const { peers: ps } = get();
-        if (ps.length === 0) { console.error('[testSend] No peers!'); return; }
-        const msg = '🧪 Test ' + new Date().toLocaleTimeString();
-        console.log('[testSend] Sending to', ps[0].id, msg);
-        get().sendClip(ps[0].id, msg, 'text');
-        console.log('[testSend] Called sendClip ✓');
-      };
-      console.log('%c[ClipBridge Dev] Call window.testSend() to test relay delivery', 'color: cyan; font-weight: bold');
-
-      // Auto-test: fire once, 4 seconds after startup, if there are peers
-      const autoTestKey = '__cbAutoTested_v4';
-      if (!(window as any)[autoTestKey]) {
-        (window as any)[autoTestKey] = true;
-        setTimeout(() => {
-          const { peers: ps } = get();
-          if (ps.length === 0) {
-            remoteLog({ event: 'auto_test_skip', reason: 'no_peers' });
-            return;
-          }
-          const msg = '🧪 Auto-test ' + new Date().toLocaleTimeString();
-          remoteLog({ event: 'auto_test_start', to: ps[0].id, msg });
-          console.log('[auto-test] Firing test send to', ps[0].id);
-          get().sendClip(ps[0].id, msg, 'text');
-        }, 4000);
-      }
-    }
-
     onMessage((msg) => {
       const type = msg.type as string;
 
@@ -164,13 +134,8 @@ export const useAppStore = create<AppState>((set, get) => ({
           navigator.clipboard.writeText(inner.content).catch(() => {});
         });
 
-        // ── Custom notification window ───────────────────────────
+        // ── Custom notification window (via Rust command) ────────
         (async () => {
-          try {
-            // Close any existing notification first
-            const existing = WebviewWindow.getByLabel("clipnotif");
-            if (existing) await existing.close();
-          } catch { /* no existing window — fine */ }
           try {
             const isUrl  = inner.dataType === "url";
             const sw     = window.screen.availWidth;
@@ -182,20 +147,14 @@ export const useAppStore = create<AppState>((set, get) => ({
               type:    inner.dataType,
               content: inner.content.slice(0, 200),
             });
-            new WebviewWindow("clipnotif", {
-              url:         `/?${params.toString()}`,
-              width:       notifW,
-              height:      notifH,
-              x:           sw - notifW - 16,
-              y:           16,
-              decorations: false,
-              alwaysOnTop: true,
-              skipTaskbar: true,
-              resizable:   false,
-              transparent: true,
-              focused:     false,
+            await invoke("show_clip_notification", {
+              urlPath: `/?${params.toString()}`,
+              x:       sw - notifW - 16,
+              y:       16,
+              width:   notifW,
+              height:  notifH,
             });
-          } catch { /* window creation not available in dev browser */ }
+          } catch { /* not in Tauri context (dev browser) */ }
         })();
 
         set(s => ({ clipHistory: [item, ...s.clipHistory].slice(0, 50) }));

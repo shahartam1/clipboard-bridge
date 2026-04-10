@@ -11,6 +11,34 @@ fn get_platform() -> String {
     std::env::consts::OS.to_string()
 }
 
+#[tauri::command]
+fn show_clip_notification(
+    app: tauri::AppHandle,
+    url_path: String,
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+) -> Result<(), String> {
+    let win = app
+        .get_webview_window("clipnotif")
+        .ok_or_else(|| "clipnotif window not found".to_string())?;
+
+    // Resize to match content (URL vs text have different heights)
+    win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(width, height)))
+        .map_err(|e| e.to_string())?;
+    win.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)))
+        .map_err(|e| e.to_string())?;
+
+    // Navigate to the notification URL, then show
+    let safe_path = url_path.replace('\'', "\\'");
+    win.eval(&format!("window.location.replace('{}');", safe_path))
+        .map_err(|e| e.to_string())?;
+
+    win.show().map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -79,7 +107,7 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_platform])
+        .invoke_handler(tauri::generate_handler![get_platform, show_clip_notification])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
