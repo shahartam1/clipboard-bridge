@@ -9,6 +9,7 @@
     "beforeBuildCommand": "npm run build"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "ClipBridge",
@@ -22,7 +23,6 @@
       {
         "label": "clipnotif",
         "title": "",
-        "url": "about:blank",
         "width": 360,
         "height": 130,
         "resizable": false,

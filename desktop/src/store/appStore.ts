@@ -141,18 +141,14 @@ export const useAppStore = create<AppState>((set, get) => ({
             const sw     = window.screen.availWidth;
             const notifW = 360;
             const notifH = isUrl ? 130 : 110;
-            const params = new URLSearchParams({
-              notif:   "1",
-              from:    item.fromName,
-              type:    inner.dataType,
-              content: inner.content.slice(0, 200),
-            });
             await invoke("show_clip_notification", {
-              urlPath: `/?${params.toString()}`,
-              x:       sw - notifW - 16,
-              y:       16,
-              width:   notifW,
-              height:  notifH,
+              from:     item.fromName,
+              dataType: inner.dataType,
+              content:  inner.content.slice(0, 200),
+              x:        sw - notifW - 16,
+              y:        16,
+              width:    notifW,
+              height:   notifH,
             });
           } catch { /* not in Tauri context (dev browser) */ }
         })();

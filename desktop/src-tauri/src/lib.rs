@@ -14,7 +14,9 @@ fn get_platform() -> String {
 #[tauri::command]
 fn show_clip_notification(
     app: tauri::AppHandle,
-    url_path: String,
+    from: String,
+    data_type: String,
+    content: String,
     x: f64,
     y: f64,
     width: f64,
@@ -24,16 +26,17 @@ fn show_clip_notification(
         .get_webview_window("clipnotif")
         .ok_or_else(|| "clipnotif window not found".to_string())?;
 
-    // Resize to match content (URL vs text have different heights)
     win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(width, height)))
         .map_err(|e| e.to_string())?;
     win.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)))
         .map_err(|e| e.to_string())?;
 
-    // Navigate to the notification URL, then show
-    let safe_path = url_path.replace('\'', "\\'");
-    win.eval(&format!("window.location.replace('{}');", safe_path))
-        .map_err(|e| e.to_string())?;
+    // Deliver notification data via Tauri event to this specific webview
+    win.emit("clip-notification", serde_json::json!({
+        "from": from,
+        "dataType": data_type,
+        "content": content,
+    })).map_err(|e| e.to_string())?;
 
     win.show().map_err(|e| e.to_string())?;
     Ok(())

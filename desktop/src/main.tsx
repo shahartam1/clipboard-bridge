@@ -2,9 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 
-const isNotification = new URLSearchParams(window.location.search).has("notif");
+// Detect if this is the notification window.
+// In Tauri: check the window label (synchronous via __TAURI_INTERNALS__).
+// In browser dev: fall back to URL param check.
+const tauriLabel = (window as any).__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? "";
+const isNotification =
+  tauriLabel === "clipnotif" ||
+  new URLSearchParams(window.location.search).has("notif");
 
-// Lazy-load so the notification window never imports the main app store
 const Root = isNotification
   ? React.lazy(() => import("./components/NotificationWindow"))
   : React.lazy(() => import("./App"));
