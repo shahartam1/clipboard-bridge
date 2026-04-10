@@ -23,7 +23,7 @@ fn show_clip_notification(
         .ok_or_else(|| "clipnotif window not found".to_string())?;
 
     let notif_w = 360.0_f64;
-    let notif_h = 155.0_f64; // tall enough for header + body + footer on all platforms
+    let notif_h = 175.0_f64; // footer is two rows (hint + buttons); needs extra height
 
     // Use the monitor the main window is on; fall back to primary monitor
     let screen_w = app

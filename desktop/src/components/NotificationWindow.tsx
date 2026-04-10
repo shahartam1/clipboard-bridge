@@ -62,13 +62,13 @@ export default function NotificationWindow() {
   // ── Auto-dismiss timer — resets on every new notification ────────────────
   useEffect(() => {
     if (!notif) return;
-    const fadeTimer = setTimeout(() => setFading(true), 3000);
+    const fadeTimer = setTimeout(() => setFading(true), 5000);
     const closeTimer = setTimeout(() => {
       getCurrentWindow()
         .hide()
         .catch(() => {});
       setNotif(null);
-    }, 3500);
+    }, 5500);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(closeTimer);
