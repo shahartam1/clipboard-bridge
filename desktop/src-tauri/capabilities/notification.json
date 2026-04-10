@@ -1,0 +1,10 @@
+{
+  "identifier": "notification-window",
+  "description": "Permissions for the custom ClipBridge notification popup window",
+  "windows": ["clipnotif"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "shell:allow-open"
+  ]
+}

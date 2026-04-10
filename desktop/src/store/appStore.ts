@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { sendNotification, isPermissionGranted, requestPermission } from "@tauri-apps/plugin-notification";
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { storage, type PeerInfo, type Identity } from "../lib/storage";
 import { encrypt, decrypt, type EncryptedPayload } from "../lib/crypto";
 import { connect, onMessage, sendMsg } from "../lib/ws";
@@ -164,24 +164,38 @@ export const useAppStore = create<AppState>((set, get) => ({
           navigator.clipboard.writeText(inner.content).catch(() => {});
         });
 
-        // ── OS notification ──────────────────────────────────────
+        // ── Custom notification window ───────────────────────────
         (async () => {
           try {
-            let granted = await isPermissionGranted();
-            if (!granted) {
-              const perm = await requestPermission();
-              granted = perm === "granted";
-            }
-            if (granted) {
-              const isUrl = inner.dataType === "url";
-              sendNotification({
-                title: `📋 ClipBridge — from ${item.fromName}`,
-                body: isUrl
-                  ? `🔗 ${inner.content.slice(0, 80)}`
-                  : inner.content.slice(0, 100),
-              });
-            }
-          } catch { /* notifications not available in dev browser */ }
+            // Close any existing notification first
+            const existing = WebviewWindow.getByLabel("clipnotif");
+            if (existing) await existing.close();
+          } catch { /* no existing window — fine */ }
+          try {
+            const isUrl  = inner.dataType === "url";
+            const sw     = window.screen.availWidth;
+            const notifW = 360;
+            const notifH = isUrl ? 130 : 110;
+            const params = new URLSearchParams({
+              notif:   "1",
+              from:    item.fromName,
+              type:    inner.dataType,
+              content: inner.content.slice(0, 200),
+            });
+            new WebviewWindow("clipnotif", {
+              url:         `/?${params.toString()}`,
+              width:       notifW,
+              height:      notifH,
+              x:           sw - notifW - 16,
+              y:           16,
+              decorations: false,
+              alwaysOnTop: true,
+              skipTaskbar: true,
+              resizable:   false,
+              transparent: true,
+              focused:     false,
+            });
+          } catch { /* window creation not available in dev browser */ }
         })();
 
         set(s => ({ clipHistory: [item, ...s.clipHistory].slice(0, 50) }));
