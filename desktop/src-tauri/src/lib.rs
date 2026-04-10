@@ -37,9 +37,6 @@ fn show_clip_notification(
     let x = screen_w - notif_w - 16.0;
     let y = 25.0; // below macOS menu bar / safe margin from top on Windows
 
-    win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(notif_w, notif_h)))
-        .map_err(|e| e.to_string())?;
-
     // ── Inject data synchronously via eval so it is available even if the
     //    Tauri event listener in React hasn't registered yet ─────────────────
     let payload = serde_json::json!({
@@ -57,8 +54,11 @@ fn show_clip_notification(
     // Also emit a Tauri event as a belt-and-suspenders fallback
     win.emit("clip-notification", payload).map_err(|e| e.to_string())?;
 
-    // Show, then set position — macOS honours position more reliably after show
+    // Show first, then apply size + position — on Windows, set_size/set_position
+    // on a hidden window may be ignored; applying after show() is reliable.
     win.show().map_err(|e| e.to_string())?;
+    win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(notif_w, notif_h)))
+        .map_err(|e| e.to_string())?;
     win.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)))
         .map_err(|e| e.to_string())?;
 
