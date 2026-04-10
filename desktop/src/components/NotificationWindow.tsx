@@ -11,6 +11,7 @@
  */
 import { useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { LogicalSize } from "@tauri-apps/api/dpi";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-shell";
 import "./NotificationWindow.css";
@@ -59,9 +60,20 @@ export default function NotificationWindow() {
     };
   }, []);
 
-  // ── Auto-dismiss timer — resets on every new notification ────────────────
+  // ── Fit window to card, then start dismiss timer ─────────────────────────
   useEffect(() => {
     if (!notif) return;
+
+    // Measure the rendered card and shrink the window to its exact height.
+    // This runs after React paints, so offsetHeight is the true rendered value.
+    const card = document.getElementById("cb-notif-card");
+    if (card) {
+      const h = card.offsetHeight;
+      getCurrentWindow()
+        .setSize(new LogicalSize(360, h + 2))
+        .catch(() => {});
+    }
+
     const fadeTimer = setTimeout(() => setFading(true), 5000);
     const closeTimer = setTimeout(() => {
       getCurrentWindow()
@@ -102,7 +114,7 @@ export default function NotificationWindow() {
       : notif.content;
 
   return (
-    <div className={`cb-notif${fading ? " cb-notif--fading" : ""}`}>
+    <div id="cb-notif-card" className={`cb-notif${fading ? " cb-notif--fading" : ""}`}>
       {/* Header */}
       <div className="cb-notif__header">
         <div className="cb-notif__brand">

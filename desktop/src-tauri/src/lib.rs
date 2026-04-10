@@ -23,7 +23,7 @@ fn show_clip_notification(
         .ok_or_else(|| "clipnotif window not found".to_string())?;
 
     let notif_w = 360.0_f64;
-    let notif_h = 175.0_f64; // footer is two rows (hint + buttons); needs extra height
+    let notif_h = 250.0_f64; // generous initial height; JS will shrink to card's actual height
 
     // Use the monitor the main window is on; fall back to primary monitor
     let screen_w = app
