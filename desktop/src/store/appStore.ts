@@ -135,23 +135,11 @@ export const useAppStore = create<AppState>((set, get) => ({
         });
 
         // ── Custom notification window (via Rust command) ────────
-        (async () => {
-          try {
-            const isUrl  = inner.dataType === "url";
-            const sw     = window.screen.availWidth;
-            const notifW = 360;
-            const notifH = isUrl ? 130 : 110;
-            await invoke("show_clip_notification", {
-              from:     item.fromName,
-              dataType: inner.dataType,
-              content:  inner.content.slice(0, 200),
-              x:        sw - notifW - 16,
-              y:        16,
-              width:    notifW,
-              height:   notifH,
-            });
-          } catch { /* not in Tauri context (dev browser) */ }
-        })();
+        invoke("show_clip_notification", {
+          from:     item.fromName,
+          dataType: inner.dataType,
+          content:  inner.content.slice(0, 200),
+        }).catch(() => { /* not in Tauri context */ });
 
         set(s => ({ clipHistory: [item, ...s.clipHistory].slice(0, 50) }));
       }

@@ -17,28 +17,52 @@ fn show_clip_notification(
     from: String,
     data_type: String,
     content: String,
-    x: f64,
-    y: f64,
-    width: f64,
-    height: f64,
 ) -> Result<(), String> {
     let win = app
         .get_webview_window("clipnotif")
         .ok_or_else(|| "clipnotif window not found".to_string())?;
 
-    win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(width, height)))
-        .map_err(|e| e.to_string())?;
-    win.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)))
+    let is_url = data_type == "url";
+    let notif_w = 360.0_f64;
+    let notif_h = if is_url { 130.0_f64 } else { 110.0_f64 };
+
+    // Use the monitor the main window is on; fall back to primary monitor
+    let screen_w = app
+        .get_webview_window("main")
+        .and_then(|w| w.current_monitor().ok().flatten())
+        .or_else(|| app.primary_monitor().ok().flatten())
+        .map(|m| m.size().width as f64 / m.scale_factor())
+        .unwrap_or(1920.0);
+
+    // Top-right corner (Tauri uses top-left origin on all platforms)
+    let x = screen_w - notif_w - 16.0;
+    let y = 25.0; // below macOS menu bar / safe margin from top on Windows
+
+    win.set_size(tauri::Size::Logical(tauri::LogicalSize::new(notif_w, notif_h)))
         .map_err(|e| e.to_string())?;
 
-    // Deliver notification data via Tauri event to this specific webview
-    win.emit("clip-notification", serde_json::json!({
+    // ── Inject data synchronously via eval so it is available even if the
+    //    Tauri event listener in React hasn't registered yet ─────────────────
+    let payload = serde_json::json!({
         "from": from,
         "dataType": data_type,
         "content": content,
-    })).map_err(|e| e.to_string())?;
+    });
+    let json_str = serde_json::to_string(&payload).map_err(|e| e.to_string())?;
+    win.eval(&format!(
+        "window.__cb_notif={};if(typeof window.__cb_notif_cb==='function')window.__cb_notif_cb();",
+        json_str
+    ))
+    .map_err(|e| e.to_string())?;
 
+    // Also emit a Tauri event as a belt-and-suspenders fallback
+    win.emit("clip-notification", payload).map_err(|e| e.to_string())?;
+
+    // Show, then set position — macOS honours position more reliably after show
     win.show().map_err(|e| e.to_string())?;
+    win.set_position(tauri::Position::Logical(tauri::LogicalPosition::new(x, y)))
+        .map_err(|e| e.to_string())?;
+
     Ok(())
 }
 
