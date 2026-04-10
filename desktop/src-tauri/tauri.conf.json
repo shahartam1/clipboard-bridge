@@ -26,6 +26,8 @@
         "width": 360,
         "height": 130,
         "resizable": false,
+        "maximizable": false,
+        "minimizable": false,
         "fullscreen": false,
         "decorations": false,
         "transparent": true,

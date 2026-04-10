@@ -22,9 +22,8 @@ fn show_clip_notification(
         .get_webview_window("clipnotif")
         .ok_or_else(|| "clipnotif window not found".to_string())?;
 
-    let is_url = data_type == "url";
     let notif_w = 360.0_f64;
-    let notif_h = if is_url { 130.0_f64 } else { 110.0_f64 };
+    let notif_h = 155.0_f64; // tall enough for header + body + footer on all platforms
 
     // Use the monitor the main window is on; fall back to primary monitor
     let screen_w = app
