@@ -35,6 +35,17 @@
 }
 .text-input:focus { border-color: var(--accent); }
 
+/* ── Inline banners ──────────────────────────────────────────────────── */
+.send-banner {
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+.send-banner--error { background: color-mix(in srgb, var(--red)   14%, transparent); color: var(--red); }
+.send-banner--ok    { background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); }
+
 /* ── Field label row (label + OCR action buttons) ─────────────────────── */
 .field-label-row {
   display: flex;

@@ -26,10 +26,18 @@ function ShortcutRecorder({
   // Keep local draft in sync when parent value changes
   useEffect(() => { setDraft(value); }, [value]);
 
+  // KEY FIX: re-focus the button after the recording state flip so
+  // the element receives keydown events.
+  useEffect(() => {
+    if (recording) inputRef.current?.focus();
+  }, [recording]);
+
   function startRecording() {
     if (disabled) return;
     setRecording(true);
     setDraft("");
+    // Explicit focus in case the useEffect fires before the next paint
+    requestAnimationFrame(() => inputRef.current?.focus());
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -37,8 +45,8 @@ function ShortcutRecorder({
     e.preventDefault();
     e.stopPropagation();
 
-    // Ignore modifier-only presses
-    if (["Control", "Shift", "Alt", "Meta", "CapsLock"].includes(e.key)) return;
+    // Ignore pure modifier presses — wait for the actual key
+    if (["Control", "Shift", "Alt", "Meta", "CapsLock", "Dead"].includes(e.key)) return;
 
     const mods: string[] = [];
     if (e.ctrlKey || e.metaKey) mods.push("CommandOrControl");
@@ -46,7 +54,7 @@ function ShortcutRecorder({
     if (e.altKey) mods.push("Alt");
 
     const key = e.key.length === 1 ? e.key.toUpperCase() : mapKey(e.key);
-    if (!key) return; // unknown key
+    if (!key) return; // unknown / unsupported key — keep recording
 
     const shortcut = [...mods, key].join("+");
     setDraft(shortcut);
@@ -57,7 +65,7 @@ function ShortcutRecorder({
   function onBlur() {
     if (recording) {
       setRecording(false);
-      setDraft(value); // revert if nothing recorded
+      setDraft(value); // revert if nothing was recorded
     }
   }
 

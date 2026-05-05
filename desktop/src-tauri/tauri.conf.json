@@ -12,6 +12,7 @@
     "macOSPrivateApi": true,
     "windows": [
       {
+        "label": "main",
         "title": "ClipBridge",
         "width": 760,
         "height": 520,
