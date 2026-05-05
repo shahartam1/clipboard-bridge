@@ -41,6 +41,9 @@ interface AppState {
   // User-configurable settings
   settings: AppSettings;
 
+  // OCR capture pending flag (set when the global shortcut fires from any tab)
+  ocrCapturePending: boolean;
+
   // Actions
   init: () => void;
   setTab: (tab: Tab) => void;
@@ -53,6 +56,8 @@ interface AppState {
   closePicker: () => void;
   renamePeer: (peerId: string, newName: string) => void;
   saveSettings: (settings: AppSettings) => void;
+  triggerOcrCapture: () => void;
+  clearOcrCapturePending: () => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -68,6 +73,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   pickerOpen: false,
   pickerText: null,
   settings: storage.getSettings(),
+  ocrCapturePending: false,
 
   init() {
     const { identity, peers } = get();
@@ -247,5 +253,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   saveSettings(settings) {
     storage.saveSettings(settings);
     set({ settings });
+  },
+
+  triggerOcrCapture() {
+    set({ ocrCapturePending: true });
+  },
+
+  clearOcrCapturePending() {
+    set({ ocrCapturePending: false });
   },
 }));

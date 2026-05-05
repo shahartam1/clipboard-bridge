@@ -36,15 +36,16 @@ export default function OcrOverlay() {
   // ── Load screenshot ──────────────────────────────────────────────────
   useEffect(() => {
     invoke<string | null>("get_screen_capture")
-      .then((b64) => {
-        if (!b64) {
+      .then((dataUrl) => {
+        if (!dataUrl) {
           setStatus("No screenshot available — close and try again.");
           return;
         }
         const img = new Image();
         img.onload = () => { imgRef.current = img; setReady(true); };
         img.onerror = () => setStatus("Failed to load screenshot.");
-        img.src = `data:image/png;base64,${b64}`;
+        // dataUrl may be a full "data:image/jpeg;base64,..." or bare base64
+        img.src = dataUrl.startsWith("data:") ? dataUrl : `data:image/png;base64,${dataUrl}`;
       })
       .catch((err) => setStatus(`Error: ${String(err)}`));
 
