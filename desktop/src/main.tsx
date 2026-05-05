@@ -2,16 +2,22 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 
-// Detect if this is the notification window.
-// In Tauri: check the window label (synchronous via __TAURI_INTERNALS__).
-// In browser dev: fall back to URL param check.
-const tauriLabel = (window as any).__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? "";
+// Detect which Tauri window we are running in (synchronous via __TAURI_INTERNALS__).
+// Falls back to URL params for browser-based development.
+const tauriLabel =
+  (window as any).__TAURI_INTERNALS__?.metadata?.currentWindow?.label ?? "";
+const params = new URLSearchParams(window.location.search);
+
 const isNotification =
-  tauriLabel === "clipnotif" ||
-  new URLSearchParams(window.location.search).has("notif");
+  tauriLabel === "clipnotif" || params.has("notif");
+
+const isOcrOverlay =
+  tauriLabel === "ocr-overlay" || params.has("ocr");
 
 const Root = isNotification
   ? React.lazy(() => import("./components/NotificationWindow"))
+  : isOcrOverlay
+  ? React.lazy(() => import("./components/OcrOverlay"))
   : React.lazy(() => import("./App"));
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

@@ -11,7 +11,20 @@ const KEYS = {
   KEY_PAIR: "cb_key_pair",
   DEVICE_NAME: "cb_device_name",
   PEERS: "cb_peers",
+  SETTINGS: "cb_settings",
 } as const;
+
+export interface AppSettings {
+  /** Tauri global-shortcut string for the quick-send hotkey */
+  sendShortcut: string;
+  /** Tauri global-shortcut string for OCR capture, or null = no shortcut */
+  ocrShortcut: string | null;
+}
+
+const DEFAULT_SETTINGS: AppSettings = {
+  sendShortcut: "CommandOrControl+Shift+C",
+  ocrShortcut: null,
+};
 
 export interface PeerInfo {
   id: string;
@@ -70,5 +83,19 @@ export const storage = {
   removePeer(peerId: string) {
     const peers = storage.getPeers().filter(p => p.id !== peerId);
     localStorage.setItem(KEYS.PEERS, JSON.stringify(peers));
+  },
+
+  getSettings(): AppSettings {
+    const raw = localStorage.getItem(KEYS.SETTINGS);
+    if (!raw) return { ...DEFAULT_SETTINGS };
+    try {
+      return { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
+    } catch {
+      return { ...DEFAULT_SETTINGS };
+    }
+  },
+
+  saveSettings(settings: AppSettings) {
+    localStorage.setItem(KEYS.SETTINGS, JSON.stringify(settings));
   },
 };

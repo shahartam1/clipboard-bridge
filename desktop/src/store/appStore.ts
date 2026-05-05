@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 import { invoke } from "@tauri-apps/api/core";
-import { storage, type PeerInfo, type Identity } from "../lib/storage";
+import { storage, type PeerInfo, type Identity, type AppSettings } from "../lib/storage";
 import { encrypt, decrypt, type EncryptedPayload } from "../lib/crypto";
 import { connect, onMessage, sendMsg } from "../lib/ws";
 
@@ -38,6 +38,9 @@ interface AppState {
   pickerOpen: boolean;
   pickerText: string | null;
 
+  // User-configurable settings
+  settings: AppSettings;
+
   // Actions
   init: () => void;
   setTab: (tab: Tab) => void;
@@ -49,6 +52,7 @@ interface AppState {
   dismissClip: (id: string) => void;
   closePicker: () => void;
   renamePeer: (peerId: string, newName: string) => void;
+  saveSettings: (settings: AppSettings) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -63,6 +67,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   sendStatus: {},
   pickerOpen: false,
   pickerText: null,
+  settings: storage.getSettings(),
 
   init() {
     const { identity, peers } = get();
@@ -237,5 +242,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (!peer) return;
     storage.addPeer({ ...peer, name: newName.trim() || peer.name });
     set({ peers: storage.getPeers() });
+  },
+
+  saveSettings(settings) {
+    storage.saveSettings(settings);
+    set({ settings });
   },
 }));

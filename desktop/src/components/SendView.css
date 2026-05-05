@@ -35,6 +35,62 @@
 }
 .text-input:focus { border-color: var(--accent); }
 
+/* ── Field label row (label + OCR action buttons) ─────────────────────── */
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.field-label-row .field-label { margin-bottom: 0; }
+
+.ocr-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.btn-ocr {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.btn-ocr:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+.btn-ocr:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ocr--upload { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ── Drop zone ────────────────────────────────────────────────────────── */
+.drop-zone {
+  position: relative;
+}
+
+.drop-zone--active .text-input {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface2));
+}
+
+.drop-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border: 2px dashed var(--accent);
+  border-radius: var(--radius);
+  pointer-events: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.drop-icon { font-size: 28px; }
+
 .send-row { display: flex; align-items: center; gap: 12px; }
 
 .status-hint { font-size: 13px; color: var(--text-muted); }

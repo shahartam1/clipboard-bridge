@@ -12,6 +12,11 @@
     "notification:default",
     "shell:allow-open",
     "core:window:allow-create",
+    "core:window:allow-show",
+    "core:window:allow-hide",
+    "core:window:allow-set-focus",
+    "core:window:allow-set-size",
+    "core:window:allow-set-position",
     "core:webview:allow-create-webview-window"
   ]
 }
